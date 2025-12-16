@@ -14,133 +14,224 @@ AI-powered resume analysis that ranks candidates using **semantic analysis** and
 
 ---
 
-## 🚀 Quick Start
+## 🏗️ System Architecture
 
-### Prerequisites
+```mermaid
+graph TB
+    subgraph Client["🖥️ Client Layer"]
+        UI[Web Browser]
+    end
 
-```powershell
-# 1. Install Ollama and models
-ollama pull llama3
-ollama pull nomic-embed-text
+    subgraph Server["⚙️ FastAPI Server"]
+        API[REST API]
+        
+        subgraph DocProcess["📄 Document Processing"]
+            DE[Document Extractor]
+            IP[Image Processor]
+            OCR[Tesseract OCR]
+        end
+        
+        subgraph AI["🤖 AI Layer"]
+            RAG[RAG Service]
+            LLM[LLM Ranker]
+        end
+    end
 
-# 2. Install Tesseract OCR
-# Download from: https://github.com/UB-Mannheim/tesseract/wiki
+    subgraph External["🔌 External Services"]
+        OL[Ollama Server]
+        EM[Embedding Model]
+        LM[Language Model]
+    end
 
-# 3. Install Poppler (for PDF support)
-# Download from: https://github.com/oschwartz10612/poppler-windows/releases
+    subgraph Storage["💾 Storage"]
+        FS[File System]
+        VS[Vector Store]
+    end
+
+    UI -->|HTTP| API
+    API --> DE
+    DE --> IP
+    IP --> OCR
+    DE --> RAG
+    RAG --> OL
+    OL --> EM
+    API --> LLM
+    LLM --> OL
+    OL --> LM
+    DE --> FS
+    RAG --> VS
+
+    style Client fill:#e1f5fe
+    style Server fill:#fff3e0
+    style External fill:#f3e5f5
+    style Storage fill:#e8f5e9
 ```
-
-### Installation
-
-```powershell
-pip install -r requirements.txt
-```
-
-### Run
-
-```powershell
-uvicorn main:app --reload
-```
-
-Access at **http://localhost:8000**
 
 ---
 
-## 🏗️ Architecture
-
-### High-Level Overview
+## 👤 User Flow
 
 ```mermaid
 flowchart LR
-    subgraph Input
-        A[📄 Files]
+    subgraph Upload["1️⃣ Upload Phase"]
+        A[Select Files] --> B[Drag & Drop]
+        B --> C[Click Upload]
     end
-    
-    subgraph Processing
-        B[Document Extractor]
-        C[Image Processor]
-        D[OCR Engine]
+
+    subgraph Process["2️⃣ Processing"]
+        D[Extract Text] --> E[Generate Embeddings]
+        E --> F[Store in RAG]
     end
-    
-    subgraph Intelligence
-        E[RAG Vector Store]
-        F[LLM Ranker]
+
+    subgraph Rank["3️⃣ Ranking Phase"]
+        G[Enter Job Description] --> H[Click Analyze]
+        H --> I[AI Analysis]
     end
-    
-    subgraph Output
-        G[📊 Rankings]
+
+    subgraph Results["4️⃣ Results"]
+        J[View Rankings] --> K[See Skill Breakdown]
+        K --> L[Review Match Score]
     end
-    
-    A --> B --> C --> D --> E --> F --> G
+
+    C --> D
+    F --> G
+    I --> J
+
+    style Upload fill:#c8e6c9
+    style Process fill:#fff9c4
+    style Rank fill:#bbdefb
+    style Results fill:#f8bbd9
 ```
-
-### Processing Flow
-
-1. **Upload**: User uploads resumes (ZIP, PDF, DOCX, images)
-2. **Extract**: Documents are extracted and preprocessed
-3. **OCR**: Text extracted via Tesseract or direct parsing
-4. **Embed**: Text converted to vectors and stored
-5. **Analyze**: LLM analyzes each resume against job description
-6. **Rank**: Candidates scored and ranked
 
 ---
 
-## 🔧 Components
+## 🔄 Project Flow (Data Pipeline)
 
-### Document Extractor
-Handles multiple file formats with parallel processing (4 workers).
+```mermaid
+flowchart TD
+    subgraph Input["📥 Input"]
+        A[ZIP / PDF / DOCX / Image]
+    end
 
-| Format | Method | Tool |
-|--------|--------|------|
-| PDF | Images → OCR | Poppler + Tesseract |
-| DOCX | Direct parse | python-docx |
-| Images | Preprocess → OCR | OpenCV + Tesseract |
+    subgraph Extract["📑 Extraction"]
+        B{File Type?}
+        C[Poppler: PDF → Images]
+        D[python-docx: Parse DOCX]
+        E[Direct: Load Image]
+    end
 
-### Image Processor
-OpenCV pipeline for scanned documents:
+    subgraph Preprocess["🔧 Preprocessing"]
+        F[Grayscale]
+        G[Denoise]
+        H[Deskew]
+        I[Enhance Contrast]
+        J[Threshold]
+    end
+
+    subgraph OCR["📝 Text Extraction"]
+        K[Tesseract OCR]
+        L[Name Detection]
+    end
+
+    subgraph RAG["🧠 RAG Pipeline"]
+        M[Text Chunking]
+        N[nomic-embed-text]
+        O[Vector Storage]
+    end
+
+    subgraph LLM["🤖 LLM Analysis"]
+        P[Job Description]
+        Q[Extract Required Skills]
+        R[Analyze Resume]
+        S[Identify Demonstrated Skills]
+        T[Identify Mentioned Skills]
+        U[Find Missing Skills]
+    end
+
+    subgraph Score["📊 Scoring"]
+        V[Apply Weights]
+        W[Calculate Score]
+        X[Rank Candidates]
+    end
+
+    subgraph Output["📤 Output"]
+        Y[Ranked Results JSON]
+    end
+
+    A --> B
+    B -->|PDF| C
+    B -->|DOCX| D
+    B -->|Image| E
+    C --> F
+    E --> F
+    D --> M
+    F --> G --> H --> I --> J
+    J --> K --> L --> M
+    M --> N --> O
+    
+    P --> Q
+    O --> R
+    Q --> R
+    R --> S
+    R --> T
+    R --> U
+    S --> V
+    T --> V
+    U --> V
+    V --> W --> X --> Y
+
+    style Input fill:#ffeb3b
+    style Extract fill:#ff9800
+    style Preprocess fill:#03a9f4
+    style OCR fill:#4caf50
+    style RAG fill:#9c27b0
+    style LLM fill:#e91e63
+    style Score fill:#00bcd4
+    style Output fill:#8bc34a
 ```
-Image → Grayscale → Denoise → Deskew → Enhance → Threshold → OCR-Ready
-```
-
-### RAG Service
-Vector storage using embeddings:
-- **Chunk size**: 1000 characters
-- **Model**: nomic-embed-text
-- **Search**: Cosine similarity
-
-### LLM Ranker
-Two-stage analysis:
-1. **Extract skills** from job description
-2. **Analyze resumes** - identify demonstrated vs mentioned skills
 
 ---
 
 ## ⚖️ Scoring Algorithm
 
-### Formula
-```
-Score = (Demonstrated × 2.0) + (Mentioned × 0.5) + (Experience × 0.3)
-        ─────────────────────────────────────────────────────────────
-                            Maximum Possible Score
+```mermaid
+graph LR
+    subgraph Skills["Skill Analysis"]
+        A[Demonstrated Skills] -->|×2.0| D[Weighted Score]
+        B[Mentioned Skills] -->|×0.5| D
+        C[Experience Years] -->|×0.3| D
+    end
+    
+    D --> E[Final Score %]
+    
+    style A fill:#4caf50
+    style B fill:#ffeb3b
+    style C fill:#2196f3
 ```
 
-### Weights
+| Type | Weight | Description |
+|------|--------|-------------|
+| **Demonstrated** | 2.0x | Skills with evidence (projects, experience) |
+| **Mentioned** | 0.5x | Skills listed but unproven |
+| **Experience** | 0.3x | Years of work experience bonus |
 
-| Type | Weight | Why |
-|------|--------|-----|
-| **Demonstrated** | 2.0x | Proven with evidence |
-| **Mentioned** | 0.5x | Listed but unproven |
-| **Experience** | 0.3x | Years bonus |
+---
 
-### Example
+## 🚀 Quick Start
+
+```powershell
+# Prerequisites
+ollama pull llama3
+ollama pull nomic-embed-text
+
+# Install
+pip install -r requirements.txt
+
+# Run
+uvicorn main:app --reload
 ```
-Job: Python, FastAPI, Docker, AWS (4 skills)
-Candidate: Demonstrated Python, FastAPI | Mentioned Docker | Missing AWS | 3 years
 
-Score = (2×2.0) + (1×0.5) + (3×0.3) = 5.4
-Max   = (4×2.0) + (3×0.3) = 8.9
-Final = 5.4 / 8.9 = 60.7%
-```
+Access at **http://localhost:8000**
 
 ---
 
@@ -149,11 +240,9 @@ Final = 5.4 / 8.9 = 60.7%
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/` | GET | Frontend UI |
-| `/api/health` | GET | Health check |
 | `/upload-resumes` | POST | Upload files |
 | `/rank-candidates` | POST | Rank against JD |
 | `/candidates/{id}` | GET | List candidates |
-| `/session/{id}` | DELETE | Delete session |
 
 ---
 
@@ -162,12 +251,11 @@ Final = 5.4 / 8.9 = 60.7%
 | Component | Technology |
 |-----------|------------|
 | API | FastAPI |
-| OCR | Tesseract 5.5.0 |
+| OCR | Tesseract |
 | PDF | Poppler |
 | Image | OpenCV |
 | LLM | Ollama + llama3 |
 | Embeddings | nomic-embed-text |
-| Frontend | HTML/CSS/JS |
 
 ---
 
@@ -175,50 +263,20 @@ Final = 5.4 / 8.9 = 60.7%
 
 ```
 AuraAi/
-├── main.py                    # API endpoints
-├── config.py                  # Settings
-├── requirements.txt           # Dependencies
-│
-├── frontend/
-│   ├── index.html             # UI structure
-│   ├── styles.css             # Dark theme
-│   └── app.js                 # Client logic
-│
-├── models/
-│   └── schemas.py             # Pydantic models
-│
-├── services/
-│   ├── document_extractor.py  # File processing
-│   ├── image_processor.py     # OpenCV pipeline
-│   ├── rag_service.py         # Vector store
-│   └── llm_ranker.py          # LLM scoring
-│
-├── uploads/                   # Temp storage
-└── chroma_db/                 # Persistence
+├── main.py              # API endpoints
+├── config.py            # Settings
+├── frontend/            # Web UI (HTML/CSS/JS)
+├── models/schemas.py    # Pydantic models
+└── services/
+    ├── document_extractor.py
+    ├── image_processor.py
+    ├── rag_service.py
+    └── llm_ranker.py
 ```
 
 ---
 
-## ⚡ Performance
+## 📚 Documentation
 
-| Optimization | Impact |
-|--------------|--------|
-| Parallel processing (4 workers) | 4x faster |
-| Reduced DPI (150) | 2x faster PDF |
-| In-memory search | Sub-ms queries |
-
----
-
-## 🔒 Security
-
-- Filename sanitization
-- Path traversal prevention
-- Extension whitelist
-- 50MB upload limit
-
----
-
-## 📚 API Documentation
-
-- Swagger UI: http://localhost:8000/docs
-- ReDoc: http://localhost:8000/redoc
+- **Swagger**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
