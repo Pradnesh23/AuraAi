@@ -14,9 +14,9 @@ from langchain.prompts import PromptTemplate
 from config import (
     OLLAMA_BASE_URL, 
     OLLAMA_MODEL,
-    DEMONSTRATED_SKILL_WEIGHT,
-    MENTIONED_SKILL_WEIGHT,
-    EXPERIENCE_WEIGHT
+    REQUIRED_SKILL_WEIGHT,
+    PREFERRED_SKILL_WEIGHT,
+    EXPERIENCE_BONUS
 )
 from models.schemas import SkillAnalysis, CandidateResult
 
@@ -168,12 +168,15 @@ class LLMRanker:
         job_requirements: Dict
     ) -> float:
         """
-        Calculate overall score for a candidate
+        Calculate ATS-style score for a candidate
         
-        Uses weighted scoring:
-        - Demonstrated skills: 2.0x weight
-        - Mentioned skills: 0.5x weight
-        - Experience: 0.3x weight
+        Standard ATS Formula:
+        Score = (Matched Skills / Total Required Skills) × 100
+        
+        With additional factors:
+        - Required skills: 1.0x weight
+        - Preferred skills: 0.5x weight  
+        - Experience bonus: 5% per year (max 15%)
         
         Args:
             analysis: Candidate analysis results
@@ -184,44 +187,42 @@ class LLMRanker:
         """
         required_skills = set(s.lower() for s in job_requirements.get("required_skills", []))
         preferred_skills = set(s.lower() for s in job_requirements.get("preferred_skills", []))
-        all_skills = required_skills | preferred_skills
         
-        if not all_skills:
+        if not required_skills and not preferred_skills:
             return 0.5  # Neutral score if no skills to compare
         
+        # Get all candidate skills (both demonstrated and mentioned count equally in ATS)
         demonstrated = set(s.lower() for s in analysis.get("demonstrated_skills", []))
         mentioned = set(s.lower() for s in analysis.get("mentioned_skills", []))
+        all_candidate_skills = demonstrated | mentioned
         
-        # Calculate skill matches
-        demonstrated_required = len(demonstrated & required_skills)
-        demonstrated_preferred = len(demonstrated & preferred_skills)
-        mentioned_required = len(mentioned & required_skills)
-        mentioned_preferred = len(mentioned & preferred_skills)
+        # Calculate matched skills
+        matched_required = len(all_candidate_skills & required_skills)
+        matched_preferred = len(all_candidate_skills & preferred_skills)
         
-        # Weighted score calculation
-        max_score = (
-            len(required_skills) * DEMONSTRATED_SKILL_WEIGHT +
-            len(preferred_skills) * DEMONSTRATED_SKILL_WEIGHT * 0.5
-        )
+        # ATS Score Calculation
+        # Required skills: full weight
+        # Preferred skills: half weight
+        total_weight = (len(required_skills) * REQUIRED_SKILL_WEIGHT) + \
+                       (len(preferred_skills) * PREFERRED_SKILL_WEIGHT)
         
-        if max_score == 0:
-            max_score = 1
+        if total_weight == 0:
+            total_weight = 1
         
-        actual_score = (
-            (demonstrated_required * DEMONSTRATED_SKILL_WEIGHT) +
-            (demonstrated_preferred * DEMONSTRATED_SKILL_WEIGHT * 0.5) +
-            (mentioned_required * MENTIONED_SKILL_WEIGHT) +
-            (mentioned_preferred * MENTIONED_SKILL_WEIGHT * 0.5)
-        )
+        matched_weight = (matched_required * REQUIRED_SKILL_WEIGHT) + \
+                         (matched_preferred * PREFERRED_SKILL_WEIGHT)
         
-        # Add experience bonus (up to 0.2 extra)
+        # Base score: percentage of skills matched
+        base_score = matched_weight / total_weight
+        
+        # Experience bonus: 5% per year, max 15%
         years_exp = analysis.get("years_experience", 0)
-        experience_bonus = min(years_exp * 0.02 * EXPERIENCE_WEIGHT, 0.2)
+        exp_bonus = min(years_exp * EXPERIENCE_BONUS, 0.15)
         
-        # Normalize to 0-1 range
-        normalized_score = min((actual_score / max_score) + experience_bonus, 1.0)
+        # Final score (capped at 1.0)
+        final_score = min(base_score + exp_bonus, 1.0)
         
-        return round(normalized_score, 3)
+        return round(final_score, 3)
     
     def rank_candidates(
         self,

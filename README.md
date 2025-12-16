@@ -187,28 +187,39 @@ flowchart TD
 
 ---
 
-## ⚖️ Scoring Algorithm
+## ⚖️ Scoring Algorithm (Industry Standard ATS)
 
 ```mermaid
 graph LR
-    subgraph Skills["Skill Analysis"]
-        A[Demonstrated Skills] -->|×2.0| D[Weighted Score]
-        B[Mentioned Skills] -->|×0.5| D
-        C[Experience Years] -->|×0.3| D
+    subgraph ATS["ATS Scoring"]
+        A[Matched Skills] --> D[Base Score]
+        B[Total Required] --> D
+        C[Experience Years] -->|+5%/year| E[Bonus]
     end
     
-    D --> E[Final Score %]
+    D --> F[Final Score %]
+    E --> F
     
     style A fill:#4caf50
-    style B fill:#ffeb3b
-    style C fill:#2196f3
+    style B fill:#2196f3
+    style C fill:#ff9800
 ```
 
-| Type | Weight | Description |
-|------|--------|-------------|
-| **Demonstrated** | 2.0x | Skills with evidence (projects, experience) |
-| **Mentioned** | 0.5x | Skills listed but unproven |
-| **Experience** | 0.3x | Years of work experience bonus |
+### Formula
+```
+Score = (Matched Skills / Total Required Skills) × 100 + Experience Bonus
+```
+
+| Factor | Weight | Description |
+|--------|--------|-------------|
+| **Required Skills** | 1.0x | Must-have skills from JD |
+| **Preferred Skills** | 0.5x | Nice-to-have skills |
+| **Experience Bonus** | +5%/year | Max 15% bonus |
+
+### Why This Formula?
+- **Industry Standard**: Used by major ATS systems (Taleo, Workday, Greenhouse)
+- **Fair & Objective**: No distinction between "demonstrated" vs "mentioned" (both can be fabricated)
+- **Keyword-Based**: Matches how real ATS systems work
 
 ---
 

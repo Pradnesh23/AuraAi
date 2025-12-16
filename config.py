@@ -30,7 +30,9 @@ ALLOWED_EXTENSIONS = {".pdf", ".png", ".jpg", ".jpeg", ".tiff", ".bmp", ".docx",
 # OCR settings
 OCR_LANGUAGES = ["eng"]
 
-# Scoring weights for ranking
-DEMONSTRATED_SKILL_WEIGHT = 2.0
-MENTIONED_SKILL_WEIGHT = 0.5
-EXPERIENCE_WEIGHT = 0.3
+# ATS Scoring Configuration (Industry Standard)
+# Score = (Matched Skills / Total Required Skills) * 100
+# Bonus weights for additional factors
+REQUIRED_SKILL_WEIGHT = 1.0      # Full weight for required skills
+PREFERRED_SKILL_WEIGHT = 0.5    # Half weight for nice-to-have skills
+EXPERIENCE_BONUS = 0.05         # 5% bonus per year (max 15%)
