@@ -72,35 +72,40 @@ graph TB
 ## 👤 User Flow
 
 ```mermaid
-flowchart LR
-    subgraph Upload["1️⃣ Upload Phase"]
-        A[Select Files] --> B[Drag & Drop]
-        B --> C[Click Upload]
+flowchart TB
+    subgraph Phase1["1️⃣ UPLOAD"]
+        direction LR
+        A[🗂️ Select Files] --> B[📁 Drag & Drop]
+        B --> C[⬆️ Upload]
     end
 
-    subgraph Process["2️⃣ Processing"]
-        D[Extract Text] --> E[Generate Embeddings]
-        E --> F[Store in RAG]
+    subgraph Phase2["2️⃣ PROCESS"]
+        direction LR
+        D[📄 Extract Text] --> E[🔢 Embeddings]
+        E --> F[💾 Store]
     end
 
-    subgraph Rank["3️⃣ Ranking Phase"]
-        G[Enter Job Description] --> H[Click Analyze]
-        H --> I[AI Analysis]
+    subgraph Phase3["3️⃣ ANALYZE"]
+        direction LR
+        G[📝 Enter Job Desc] --> H[🔍 Analyze]
+        H --> I[🤖 AI Ranking]
     end
 
-    subgraph Results["4️⃣ Results"]
-        J[View Rankings] --> K[See Skill Breakdown]
-        K --> L[Review Match Score]
+    subgraph Phase4["4️⃣ RESULTS"]
+        direction LR
+        J[📊 View Rankings] --> K[✅ Demonstrated]
+        K --> L[📋 Mentioned]
+        L --> M[❌ Missing]
     end
 
-    C --> D
-    F --> G
-    I --> J
+    Phase1 --> Phase2
+    Phase2 --> Phase3
+    Phase3 --> Phase4
 
-    style Upload fill:#c8e6c9
-    style Process fill:#fff9c4
-    style Rank fill:#bbdefb
-    style Results fill:#f8bbd9
+    style Phase1 fill:#c8e6c9,stroke:#4caf50,stroke-width:2px
+    style Phase2 fill:#fff9c4,stroke:#ffc107,stroke-width:2px
+    style Phase3 fill:#bbdefb,stroke:#2196f3,stroke-width:2px
+    style Phase4 fill:#f8bbd0,stroke:#e91e63,stroke-width:2px
 ```
 
 ---
