@@ -100,10 +100,6 @@ flowchart TB
 
 ---
 
-## 🔄 Project Flow (Data Pipeline)
-
-```mermaid
-flowchart TD
 ## 🔄 Data Pipeline
 
 ```mermaid
