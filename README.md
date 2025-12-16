@@ -104,86 +104,69 @@ flowchart TB
 
 ```mermaid
 flowchart TD
-    subgraph Input["📥 Input"]
-        A[ZIP / PDF / DOCX / Image]
+## 🔄 Data Pipeline
+
+```mermaid
+flowchart LR
+    subgraph INPUT["📥 INPUT"]
+        A[Files]
     end
 
-    subgraph Extract["📑 Extraction"]
-        B{File Type?}
-        C[Poppler: PDF → Images]
-        D[python-docx: Parse DOCX]
-        E[Direct: Load Image]
+    subgraph EXTRACT["📑 EXTRACT"]
+        direction TB
+        B[PDF] --> B1[Poppler]
+        C[DOCX] --> C1[python-docx]
+        D[Image] --> D1[OpenCV]
     end
 
-    subgraph Preprocess["🔧 Preprocessing"]
-        F[Grayscale]
-        G[Denoise]
-        H[Deskew]
-        I[Enhance Contrast]
-        J[Threshold]
+    subgraph PROCESS["⚙️ PROCESS"]
+        direction TB
+        E[Grayscale]
+        E --> F[Denoise]
+        F --> G[Deskew]
+        G --> H[OCR]
     end
 
-    subgraph OCR["📝 Text Extraction"]
-        K[Tesseract OCR]
-        L[Name Detection]
+    subgraph STORE["💾 STORE"]
+        direction TB
+        I[Chunk Text]
+        I --> J[Embed]
+        J --> K[Vector DB]
     end
 
-    subgraph RAG["🧠 RAG Pipeline"]
-        M[Text Chunking]
-        N[nomic-embed-text]
-        O[Vector Storage]
+    subgraph ANALYZE["🤖 ANALYZE"]
+        direction TB
+        L[Parse JD]
+        L --> M[Match Skills]
+        M --> N[Score]
     end
 
-    subgraph LLM["🤖 LLM Analysis"]
-        P[Job Description]
-        Q[Extract Required Skills]
-        R[Analyze Resume]
-        S[Identify Demonstrated Skills]
-        T[Identify Mentioned Skills]
-        U[Find Missing Skills]
+    subgraph OUTPUT["📊 OUTPUT"]
+        O[Rankings]
     end
 
-    subgraph Score["📊 Scoring"]
-        V[Apply Weights]
-        W[Calculate Score]
-        X[Rank Candidates]
-    end
+    INPUT ==> EXTRACT
+    EXTRACT ==> PROCESS
+    PROCESS ==> STORE
+    STORE ==> ANALYZE
+    ANALYZE ==> OUTPUT
 
-    subgraph Output["📤 Output"]
-        Y[Ranked Results JSON]
-    end
-
-    A --> B
-    B -->|PDF| C
-    B -->|DOCX| D
-    B -->|Image| E
-    C --> F
-    E --> F
-    D --> M
-    F --> G --> H --> I --> J
-    J --> K --> L --> M
-    M --> N --> O
-    
-    P --> Q
-    O --> R
-    Q --> R
-    R --> S
-    R --> T
-    R --> U
-    S --> V
-    T --> V
-    U --> V
-    V --> W --> X --> Y
-
-    style Input fill:#ffeb3b
-    style Extract fill:#ff9800
-    style Preprocess fill:#03a9f4
-    style OCR fill:#4caf50
-    style RAG fill:#9c27b0
-    style LLM fill:#e91e63
-    style Score fill:#00bcd4
-    style Output fill:#8bc34a
+    style INPUT fill:#ffeb3b,stroke:#f57f17,stroke-width:2px
+    style EXTRACT fill:#ff9800,stroke:#e65100,stroke-width:2px
+    style PROCESS fill:#03a9f4,stroke:#01579b,stroke-width:2px
+    style STORE fill:#9c27b0,stroke:#4a148c,stroke-width:2px
+    style ANALYZE fill:#e91e63,stroke:#880e4f,stroke-width:2px
+    style OUTPUT fill:#4caf50,stroke:#1b5e20,stroke-width:2px
 ```
+
+### Pipeline Stages
+
+| Stage | Components | Output |
+|-------|------------|--------|
+| **Extract** | Poppler, python-docx, OpenCV | Raw content |
+| **Process** | Grayscale → Denoise → Deskew → OCR | Clean text |
+| **Store** | Chunking → Embeddings → Vector DB | Searchable vectors |
+| **Analyze** | JD Parsing → Skill Matching → Scoring | Match scores |
 
 ---
 
