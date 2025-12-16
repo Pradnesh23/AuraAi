@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuraAI - Resume Ranking Service</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Background Effects -->
+        <div class="bg-gradient"></div>
+        <div class="bg-grid"></div>
+
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <span class="logo-text">AuraAI</span>
+            </div>
+            <nav class="nav">
+                <a href="#upload" class="nav-link active">Upload</a>
+                <a href="#rank" class="nav-link">Rank</a>
+                <a href="#results" class="nav-link">Results</a>
+            </nav>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1 class="hero-title">
+                    <span class="gradient-text">AI-Powered</span> Resume Ranking
+                </h1>
+                <p class="hero-subtitle">
+                    Upload resumes, analyze skills, and find the perfect candidates using advanced AI that
+                    differentiates between mentioned and demonstrated experience.
+                </p>
+            </section>
+
+            <!-- Upload Section -->
+            <section id="upload" class="card upload-section">
+                <div class="card-header">
+                    <div class="card-icon upload-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+                            <polyline points="17,8 12,3 7,8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="card-title">Upload Resumes</h2>
+                        <p class="card-subtitle">Upload resumes as ZIP, PDF, DOCX, or images</p>
+                    </div>
+                </div>
+
+                <div class="upload-zone" id="dropZone">
+                    <input type="file" id="fileInput" accept=".zip,.pdf,.docx,.doc,.png,.jpg,.jpeg,.tiff,.bmp" multiple
+                        hidden>
+                    <div class="upload-content">
+                        <div class="upload-icon-large">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                        </div>
+                        <p class="upload-text">Drag & drop resume files here</p>
+                        <p class="upload-hint">or click to browse (multiple files supported)</p>
+                        <div class="file-types">
+                            <span class="file-badge">ZIP</span>
+                            <span class="file-badge">PDF</span>
+                            <span class="file-badge">DOCX</span>
+                            <span class="file-badge">PNG/JPG</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upload-status hidden" id="uploadStatus">
+                    <div class="status-content">
+                        <div class="spinner"></div>
+                        <span class="status-text">Processing resumes...</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="upload-result hidden" id="uploadResult">
+                    <div class="result-header">
+                        <div class="result-icon success">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 11-5.93-9.14" />
+                                <polyline points="22,4 12,14.01 9,11.01" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="result-title">Upload Complete!</h3>
+                            <p class="result-subtitle" id="resultSubtitle">5 resumes processed</p>
+                        </div>
+                    </div>
+                    <div class="candidates-list" id="candidatesList"></div>
+                </div>
+            </section>
+
+            <!-- Ranking Section -->
+            <section id="rank" class="card rank-section">
+                <div class="card-header">
+                    <div class="card-icon rank-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="4" y1="21" x2="4" y2="14" />
+                            <line x1="4" y1="10" x2="4" y2="3" />
+                            <line x1="12" y1="21" x2="12" y2="12" />
+                            <line x1="12" y1="8" x2="12" y2="3" />
+                            <line x1="20" y1="21" x2="20" y2="16" />
+                            <line x1="20" y1="12" x2="20" y2="3" />
+                            <line x1="1" y1="14" x2="7" y2="14" />
+                            <line x1="9" y1="8" x2="15" y2="8" />
+                            <line x1="17" y1="16" x2="23" y2="16" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="card-title">Rank Candidates</h2>
+                        <p class="card-subtitle">Enter job description to rank candidates</p>
+                    </div>
+                </div>
+
+                <div class="job-description-container">
+                    <label class="input-label" for="jobDescription">Job Description</label>
+                    <textarea id="jobDescription" class="textarea"
+                        placeholder="Paste the job description here. Include required skills, experience, and responsibilities..."
+                        rows="6"></textarea>
+                    <div class="textarea-footer">
+                        <span class="char-count"><span id="charCount">0</span> characters</span>
+                        <span class="min-chars">Minimum 20 characters</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-rank" id="rankBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" />
+                    </svg>
+                    <span>Analyze & Rank Candidates</span>
+                </button>
+
+                <div class="ranking-status hidden" id="rankingStatus">
+                    <div class="status-content">
+                        <div class="spinner"></div>
+                        <span class="status-text" id="rankingStatusText">Analyzing with AI...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="results" class="results-section hidden">
+                <div class="results-header">
+                    <h2 class="results-title">Ranking Results</h2>
+                    <div class="results-meta">
+                        <span id="totalCandidates">5 candidates</span>
+                        <span class="divider">•</span>
+                        <span id="processingTime">Processed in 12.5s</span>
+                    </div>
+                </div>
+
+                <div class="results-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot demonstrated"></span>
+                        <span>Demonstrated Skills (2x weight)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot mentioned"></span>
+                        <span>Mentioned Skills (0.5x weight)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot missing"></span>
+                        <span>Missing Skills</span>
+                    </div>
+                </div>
+
+                <div class="results-list" id="resultsList"></div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by <strong>Ollama LLM</strong> • <strong>ChromaDB</strong> • <strong>OpenCV</strong></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

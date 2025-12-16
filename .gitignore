@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+
+# IDE
+.vscode/
+.idea/
+.antigravity/
+
+# Project
+uploads/
+chroma_db/
+*.log
+
+# System
+.DS_Store
+Thumbs.db
