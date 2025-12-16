@@ -17,54 +17,44 @@ AI-powered resume analysis that ranks candidates using **semantic analysis** and
 ## 🏗️ System Architecture
 
 ```mermaid
-graph TB
-    subgraph Client["🖥️ Client Layer"]
+flowchart TB
+    subgraph Client["🖥️ CLIENT"]
         UI[Web Browser]
     end
 
-    subgraph Server["⚙️ FastAPI Server"]
+    subgraph Server["⚙️ FASTAPI SERVER"]
+        direction TB
         API[REST API]
         
-        subgraph DocProcess["📄 Document Processing"]
-            DE[Document Extractor]
-            IP[Image Processor]
-            OCR[Tesseract OCR]
+        subgraph Processing["📄 Document Processing"]
+            direction LR
+            DE[Document Extractor] --> IP[Image Processor] --> OCR[Tesseract OCR]
         end
         
-        subgraph AI["🤖 AI Layer"]
-            RAG[RAG Service]
-            LLM[LLM Ranker]
+        subgraph Intelligence["🤖 AI Layer"]
+            direction LR
+            RAG[RAG Service] --> LLM[LLM Ranker]
         end
     end
 
-    subgraph External["🔌 External Services"]
-        OL[Ollama Server]
-        EM[Embedding Model]
-        LM[Language Model]
+    subgraph External["🔌 EXTERNAL"]
+        direction LR
+        OL[Ollama] --> EM[Embeddings]
+        OL --> LM[LLM]
     end
 
-    subgraph Storage["💾 Storage"]
-        FS[File System]
-        VS[Vector Store]
+    subgraph Storage["💾 STORAGE"]
+        direction LR
+        FS[Files] --> VS[Vectors]
     end
 
-    UI -->|HTTP| API
-    API --> DE
-    DE --> IP
-    IP --> OCR
-    DE --> RAG
-    RAG --> OL
-    OL --> EM
-    API --> LLM
-    LLM --> OL
-    OL --> LM
-    DE --> FS
-    RAG --> VS
+    UI ==>|HTTP Request| API
+    API ==> Processing
+    Processing ==> Intelligence
+    Intelligence ==> External
+    Processing ==> Storage
 
-    style Client fill:#e1f5fe
-    style Server fill:#fff3e0
-    style External fill:#f3e5f5
-    style Storage fill:#e8f5e9
+    linkStyle 0,1,2,3,4 stroke:#333,stroke-width:2px
 ```
 
 ---
